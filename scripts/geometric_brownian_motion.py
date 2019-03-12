@@ -1,25 +1,55 @@
 from scipy.stats import norm
 import numpy as np
+import matplotlib.pyplot as plt
 
-def compute_wiener_process(W_0, dt, size):
-    W = [W_0]
-    for t in range(1, size):
-        W.append(W[-1] + norm.rvs(scale = dt))
+
+def compute_wiener_process(W_0, dt, number_dates):
+    W = np.zeros(number_dates);
+    W[0] = W_0
+    for t in range(1, number_dates):
+        W[t] = W[t - 1] + norm.rvs(loc = 0, scale = np.sqrt(dt / 365.0))
+    
     return W
 
-def compute_geometric_brownian_motion(S_0, mu, sigma, W_0, size):
-    S = [S_0]
-    W = compute_wiener_process(W_0, 1, size)
-    for t in range(1, size):
-        S.append(S_0 * np.exp((mu - sigma**2 / 2)* t + sigma * W[t]))
-        print(S[-1])
-    return 0
+def compute_geometric_brownian_motion(S_0, mu, sigma, W_0, number_dates):
+    W = compute_wiener_process(W_0, 1, number_dates)
+    S = np.zeros(number_dates);
+    S[0] = S_0
+    for t in range(1, number_dates):
+        S[t] = S_0 * np.exp((mu - (sigma ** 2) / 2)* t / 365.0 + sigma * W[t])
+    
+    return S
 
-def plot_geometric_brownian_motion():
-    return 0
+
+def plot_geometric_brownian_motions(brownian_motions, ylabels):
+    t = list(range(len(brownian_motions[0])))
+    for k in range(len(brownian_motions)):
+        plt.plot(t, brownian_motions[k])
+        plt.legend(ylabels[k])
+        
+    plt.xlabel('time')
+    plt.show()
+    
 
 def main():
-    compute_geometric_brownian_motion(0.0, .5, .01, 0.0, 30)
+    S_0 = 100.0
+    W_0 = 0.0
+    number_dates = 1000   
+    number_scenarii = 3
+
+    scenarii = np.zeros((number_scenarii, number_dates))
+    ylabels = ["" for x in range(number_scenarii)]
+    
+    scenarii[0] = compute_geometric_brownian_motion(S_0, .15, .2, W_0, number_dates)
+    ylabels [0] = r'$\mu > \sigma^2 /2$'
+    
+    scenarii[1] = compute_geometric_brownian_motion(S_0, .01, .2, W_0, number_dates)
+    ylabels [1] = r'$\mu < \sigma^2 /2$'
+    
+    scenarii[2] = compute_geometric_brownian_motion(S_0, .02, .2, W_0, number_dates)
+    ylabels [2] = r'$\mu = \sigma^2 /2$'
+
+    plot_geometric_brownian_motions(scenarii, ylabels)
 
 if __name__ == "__main__":
     main()
