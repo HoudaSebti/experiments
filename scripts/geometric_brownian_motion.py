@@ -23,13 +23,14 @@ def compute_geometric_brownian_motion(S_0, mu, sigma, W_0, number_dates):
 
 def plot_geometric_brownian_motions(brownian_motions, ylabels):
     t = list(range(len(brownian_motions[0])))
+    fig, ax = plt.subplots()
     for k in range(len(brownian_motions)):
-        plt.plot(t, brownian_motions[k])
-        plt.legend(ylabels[k])
-        
-    plt.xlabel('time')
+        ax.plot(t, brownian_motions[k], label=ylabels[k])
+        plt.legend(loc='best')
+    ax.set(title=r'Brownian_motion$(t)$',
+    xlabel='$t$',
+    ylabel='Brownian_motion')
     plt.show()
-    
 
 def main():
     S_0 = 100.0
